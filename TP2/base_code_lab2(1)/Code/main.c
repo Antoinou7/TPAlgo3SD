@@ -38,6 +38,52 @@ void computeExpressions(FILE* input) {
 }
 
 
+bool isSymbol(char c){
+	return c=='+' || c=='-' || c=='*' || c=='/' || c=='^' || c=='(' || c==')';
+}
+
+Queue* stringToTokenQueue(const char* expression)
+{
+
+Queue* Queuefinal = create_queue();
+const char* curpos = expression;
+
+while(*curpos != '\0'){
+	while(*curpos == ' ' || *curpos == '\n') 
+	{
+		curpos++;
+	}
+	int nbValNum =0;
+	if(isSymbol(*curpos))
+	{
+		nbValNum = 1;
+	}	
+	else{
+		while (curpos[nbValNum] != '\0' && !isSymbol(curpos[nbValNum]) && curpos[length] != ' ' && curpos[length] != '\n')
+		{
+			nbValNum++;
+		}
+	}
+	Token* token = createTokenFromString(curpos, nbValNum);
+		queue_push(Queuefinal, token);
+		curpos += nbValNum;
+
+	}
+
+
+
+
+
+
+}
+
+
+return Queuefinal; 
+}
+
+
+
+
 /** Main function for testing.
  * The main function expects one parameter that is the file where expressions to translate are
  * to be read.
