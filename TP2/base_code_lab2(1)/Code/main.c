@@ -44,20 +44,19 @@ while(*curpos != '\0'){
 			nbValNum++;
 		}
 	}
+
+	if(nbValNum > 0){
+
 		Token* token = create_token_from_string(curpos, nbValNum);
 		queue_push(Queuefinal, token);
 		curpos += nbValNum;
-
+	}
+	else{
+		curpos++;
+	}
 	}
 return Queuefinal; 
 }
-
-
-
-
-
-
-
 
 
 
