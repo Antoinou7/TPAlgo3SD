@@ -17,26 +17,6 @@
 void print_token(const void* e, void* user_param);
 void print_queue(FILE* f, Queue* q);
 
-/** 
- * Function to be written by students
- */
-void computeExpressions(FILE* input) {
-	char* buffer = NULL; // SET buffer to NULL so that getline can allocate memory on its own
-	size_t size = 0; // SET size to 0 so that getline can allocate memory on its own
-	
-	while(!feof(input)) // while we are not at the end of the file
-	{
-		if(getline(&buffer, &size, input) > 1 ) // getLine return the number of characters read, we do not want to read empty lines, so we check if the number of characters read is greater than 1
-		{
-			printf("\nInput : %s", buffer);
-		}
-	}
-
-	free(buffer); //free the memory allocaded by the function "getline"
-	
-	
-}
-
 
 bool isSymbol(char c){
 	return c=='+' || c=='-' || c=='*' || c=='/' || c=='^' || c=='(' || c==')';
@@ -59,27 +39,68 @@ while(*curpos != '\0'){
 		nbValNum = 1;
 	}	
 	else{
-		while (curpos[nbValNum] != '\0' && !isSymbol(curpos[nbValNum]) && curpos[length] != ' ' && curpos[length] != '\n')
+		while (curpos[nbValNum] != '\0' && !isSymbol(curpos[nbValNum]) && curpos[nbValNum]!=' ' && curpos[nbValNum] != '\n')
 		{
 			nbValNum++;
 		}
 	}
-	Token* token = createTokenFromString(curpos, nbValNum);
+		Token* token = create_token_from_string(curpos, nbValNum);
 		queue_push(Queuefinal, token);
 		curpos += nbValNum;
 
 	}
-
-
-
-
-
-
-}
-
-
 return Queuefinal; 
 }
+
+
+
+
+
+
+
+
+
+
+
+/** 
+ * Function to be written by students
+ */
+void computeExpressions(FILE* input) {
+	char* buffer = NULL; // SET buffer to NULL so that getline can allocate memory on its own
+	size_t size = 0; // SET size to 0 so that getline can allocate memory on its own
+	
+	while(!feof(input)) // while we are not at the end of the file
+	{
+		if(getline(&buffer, &size, input) > 1 ) // getLine return the number of characters read, we do not want to read empty lines, so we check if the number of characters read is greater than 1
+		{
+			printf("\nInput : %s", buffer);
+			Queue* tokenQueue = stringToTokenQueue(buffer);
+			printf("Infix : ");
+			print_queue(stdout, tokenQueue);
+			printf("\n");
+		
+
+		//free the tokenQueue
+		while(!queue_empty(tokenQueue))
+		{
+			Token* t = (Token*)queue_top(tokenQueue);
+			delete_token(&t);
+			queue_pop(tokenQueue);
+		}
+		delete_queue(&tokenQueue);
+
+	}
+	}
+
+	free(buffer); //free the memory allocaded by the function "getline"
+	
+	
+
+
+}
+
+
+
 
 
 
