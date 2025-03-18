@@ -60,6 +60,70 @@ return Queuefinal;
 
 
 
+Queue* shuntingYard(Queue* infix)
+{
+Queue* postfix = create_queue();
+Stack* operator = create_stack(queue_size(infix));
+
+while(!queue_empty(infix))
+{
+	Token* token =(Token*) queue_top(infix);
+	if(token_is_number(token))
+	{
+		queue_push(postfix, token);
+	}
+	else if (token_is_operator(token))
+	{
+		while(!stack_empty(operator) &&
+	(token_operator_priority(stack_top(operator)) > token_operator_priority(token) ||
+	(token_operator_priority(stack_top(operator)) == token_operator_priority(token) && token_operator_leftAssociative(token))) &&
+	!token_is_parenthesis(stack_top(operator)))
+	{
+		queue_push(postfix, stack_pop(operator));
+	}
+	stack_push(operator, token);
+	}
+	else if(token_is_parenthesis(token) && token_parenthesis(token) == '(')
+	{
+		stack_push(operator, token);
+	}
+	else if(token_is_parenthesis(token) && token_parenthesis(token) == ')')
+	{
+		while(!(token_is_parenthesis(stack_top(operator)) && token_parenthesis(stack_top(operator)) == '('))
+		{
+			queue_push(postfix, stack_pop(operator));
+		}
+
+		if (token_is_parenthesis(stack_top(operator)) && token_parenthesis(stack_top(operator)) == '(')
+		{
+			stack_pop(operator);
+		}
+		delete_token(&token);
+	}
+	else
+	{
+		delete_token(&token);
+	}
+	}
+
+	if (queue_empty(infix))
+	{
+		while(!stack_empty(operator))
+		{
+			queue_push(postfix, stack_pop(operator));
+		}
+
+	}
+	delete_stack(&operator);
+	return postfix;
+}
+
+
+
+
+
+
+
 
 /** 
  * Function to be written by students
@@ -77,6 +141,13 @@ void computeExpressions(FILE* input) {
 			printf("Infix : ");
 			print_queue(stdout, tokenQueue);
 			printf("\n");
+			Queue* postfix = shuntingYard(tokenQueue);
+			if(postfix != NULL)
+			{
+			printf("Postfix : ");
+			print_queue(stdout, postfix);
+			printf("\n");
+			}
 		
 
 		//free the tokenQueue
@@ -87,6 +158,15 @@ void computeExpressions(FILE* input) {
 			queue_pop(tokenQueue);
 		}
 		delete_queue(&tokenQueue);
+
+		//free the postfix
+		while(!queue_empty(postfix))
+		{
+			Token* p = (Token*)queue_top(postfix);
+			delete_token(&p);
+			queue_pop(postfix);
+		}
+		delete_queue(&postfix);
 
 	}
 	}
