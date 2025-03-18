@@ -28,6 +28,7 @@ Queue* stringToTokenQueue(const char* expression)
 Queue* Queuefinal = create_queue();
 const char* curpos = expression;
 
+
 while(*curpos != '\0'){
 	while(*curpos == ' ' || *curpos == '\n') 
 	{
@@ -75,45 +76,41 @@ while(!queue_empty(infix))
 	else if (token_is_operator(token))
 	{
 		while(!stack_empty(operator) &&
+		token_is_operator(stack_top(operator)) &&
 	(token_operator_priority(stack_top(operator)) > token_operator_priority(token) ||
 	(token_operator_priority(stack_top(operator)) == token_operator_priority(token) && token_operator_leftAssociative(token))) &&
-	!token_is_parenthesis(stack_top(operator)))
+	(token_is_parenthesis(stack_top(operator)) ? token_parenthesis((stack_top(operator))) != ')': true))
 	{
-		queue_push(postfix, stack_pop(operator));
+		queue_push(postfix, stack_top(operator));
+		stack_pop(operator);
 	}
 	stack_push(operator, token);
 	}
 	else if(token_is_parenthesis(token) && token_parenthesis(token) == '(')
 	{
-		stack_push(operator, token);
+	stack_push(operator, token);
 	}
 	else if(token_is_parenthesis(token) && token_parenthesis(token) == ')')
 	{
-		while(!(token_is_parenthesis(stack_top(operator)) && token_parenthesis(stack_top(operator)) == '('))
+		while(!stack_empty(operator) && token_is_parenthesis(stack_top(operator)) ?
+		token_parenthesis((stack_top(operator))) != '(' : true)
 		{
-			queue_push(postfix, stack_pop(operator));
-		}
-
-		if (token_is_parenthesis(stack_top(operator)) && token_parenthesis(stack_top(operator)) == '(')
-		{
+			queue_push(postfix, stack_top(operator));
 			stack_pop(operator);
 		}
-		delete_token(&token);
+		stack_pop(operator);
 	}
-	else
-	{
-		delete_token(&token);
-	}
-	}
+	queue_pop(infix);
+}
 
-	if (queue_empty(infix))
+if(queue_size(infix)==0)
+{
+	while(!stack_empty(operator))
 	{
-		while(!stack_empty(operator))
-		{
-			queue_push(postfix, stack_pop(operator));
-		}
-
+		queue_push(postfix, stack_top(operator));
+		stack_pop(operator);
 	}
+}
 	delete_stack(&operator);
 	return postfix;
 }
@@ -137,16 +134,27 @@ void computeExpressions(FILE* input) {
 		if(getline(&buffer, &size, input) > 1 ) // getLine return the number of characters read, we do not want to read empty lines, so we check if the number of characters read is greater than 1
 		{
 			printf("\nInput : %s", buffer);
+			
 			Queue* tokenQueue = stringToTokenQueue(buffer);
 			printf("Infix : ");
 			print_queue(stdout, tokenQueue);
 			printf("\n");
+			
 			Queue* postfix = shuntingYard(tokenQueue);
 			if(postfix != NULL)
 			{
 			printf("Postfix : ");
 			print_queue(stdout, postfix);
 			printf("\n");
+
+			//free the postfix
+		while(!queue_empty(postfix))
+		{
+			Token* p = (Token*)queue_top(postfix);
+			delete_token(&p);
+			queue_pop(postfix);
+		}
+		delete_queue(&postfix);
 			}
 		
 
@@ -158,23 +166,11 @@ void computeExpressions(FILE* input) {
 			queue_pop(tokenQueue);
 		}
 		delete_queue(&tokenQueue);
-
-		//free the postfix
-		while(!queue_empty(postfix))
-		{
-			Token* p = (Token*)queue_top(postfix);
-			delete_token(&p);
-			queue_pop(postfix);
-		}
-		delete_queue(&postfix);
-
 	}
 	}
 
 	free(buffer); //free the memory allocaded by the function "getline"
 	
-	
-
 
 }
 
