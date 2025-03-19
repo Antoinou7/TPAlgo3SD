@@ -115,9 +115,100 @@ if(queue_size(infix)==0)
 	return postfix;
 }
 
+Token* evaluateOperator(Token* arg1, Token* op, Token* arg2)
+{
+	if (token_is_number(arg1) && token_is_operator(op) && token_is_number(arg2))
+	{
+		float value1 = token_value(arg1);
+		float value2 = token_value(arg2);
+		char operator = token_operator(op);
+		float result = 0;
+		if (operator == '+')
+		{
+			result = value1 + value2;
+		}
+		else if (operator == '-')
+		{
+			result = value1 - value2;
+		}
+		else if (operator == '*')
+		{
+			result = value1 * value2;
+		}
+		else if (operator == '/')
+		{
+			result = value1 / value2;
+		}
+		else if (operator == '^')
+		{
+			result = pow(value1, value2);
+		}
+		else
+		{
+			fprintf(stderr, "%c isn't a supported operator. The only supported are + - / * ^\n", operator);
+			delete_token(&arg1);
+			delete_token(&arg2);
+			delete_token(&op);
+			exit(1);
+		}
+		delete_token(&arg1);
+		delete_token(&arg2);
+		delete_token(&op);
+		return create_token_from_value(result);
+	}
+	else 
+	{
+		fprintf(stderr,"Error, one of the three arguments is a wrong type\n");
+		exit(2);
 
+	}
 
+}
 
+float evaluateExpression(Queue* postfix)
+{
+	Stack* operand = create_stack(queue_size(postfix)); // create stack to store operands
+	Token* evaluatedOperation;
+
+	while(!queue_empty(postfix))
+	{
+		if(!stack_empty(operand) && token_is_operator(queue_top(postfix)))
+		{
+			Token* operand2 = (Token*)stack_top(operand);
+			stack_pop(operand);
+			if(!stack_empty(operand)) // After stack_pop, the stack can be empty and we want to avoid that so we check if the stack is empty
+			{
+			Token* operand1 = (Token*)stack_top(operand);
+			stack_pop(operand);
+			Token* operator = (Token*)queue_top(postfix);
+			evaluatedOperation = evaluateOperator(operand1, operator, operand2);
+			stack_push(operand, evaluatedOperation); // push result back onto the stack  ***
+			}
+		}
+		else if (!token_is_operator(queue_top(postfix)))  // else if token is an operand
+		{
+			stack_push(operand, queue_top(postfix)); // push token onto the stack
+		}
+		queue_pop(postfix); // remove token from the queue
+	}
+	float result;
+	if(!stack_empty(operand) && token_is_number(stack_top(operand))) // if stack is not empty and top of stack is a number
+	{
+		result = token_value(stack_top(operand)); // Result is a Token that we just pushed in the stack (cf.***), we now want to return a float value
+	}
+	else
+	{
+		delete_stack(&operand);
+		delete_token(&evaluatedOperation);
+		fprintf(stderr, "Error, the stack is empty or the top of the stack is not a number\n");
+		exit(3);
+	}
+	stack_pop(operand);
+	delete_stack(&operand);
+	delete_token(&evaluatedOperation);
+	return result;
+
+}
 
 
 
@@ -146,6 +237,8 @@ void computeExpressions(FILE* input) {
 			printf("Postfix : ");
 			print_queue(stdout, postfix);
 			printf("\n");
+			float result = evaluateExpression(postfix);
+			printf("Evaluate : %6f\n", result);
 
 			//free the postfix
 		while(!queue_empty(postfix))
