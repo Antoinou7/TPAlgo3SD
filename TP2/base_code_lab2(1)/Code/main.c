@@ -79,7 +79,7 @@ while(!queue_empty(infix))
 		token_is_operator(stack_top(operator)) &&
 	(token_operator_priority(stack_top(operator)) > token_operator_priority(token) ||
 	(token_operator_priority(stack_top(operator)) == token_operator_priority(token) && token_operator_leftAssociative(token))) &&
-	(token_is_parenthesis(stack_top(operator)) ? token_parenthesis((stack_top(operator))) != ')': true))
+	(token_is_parenthesis(stack_top(operator)) ? token_parenthesis((stack_top(operator))) != '(': true))
 	{
 		queue_push(postfix, stack_top(operator));
 		stack_pop(operator);
