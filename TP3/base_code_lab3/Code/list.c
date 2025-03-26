@@ -39,7 +39,7 @@ List* list_create(void) {
 	l->sentinel = (LinkedElement*)malloc(sizeof(LinkedElement));
 
 	//We initialize the sentinel as presented in the homework
-	SIZE_of_s = 0 //Sentinel has no value
+	SIZE_of_s = 0; //Sentinel has no value
 	l->sentinel->previous = l->sentinel->next = l->sentinel; //Sentinel points to itself since it is the only element in the list for now(list is obviously empty when creating the list)
 
 	//Finally, we initialize the List
@@ -87,7 +87,7 @@ if (l==NULL || *l==NULL)
 /*-----------------------------------------------------------------*/
 
 List* list_push_front(List* l, int v) {
-	LinkedElement* e
+	(void)v;
 	return l;
 }
 
@@ -142,15 +142,13 @@ int list_at(const List* l, int p) {
 /*-----------------------------------------------------------------*/
 
 bool list_is_empty(const List* l) {
-	(void)l;
-	return false;
+return l->size==0;
 }
 
 /*-----------------------------------------------------------------*/
 
 int list_size(const List* l) {
-	(void)l;
-	return 0;
+	return SIZE_of_s;
 }
 
 /*-----------------------------------------------------------------*/
