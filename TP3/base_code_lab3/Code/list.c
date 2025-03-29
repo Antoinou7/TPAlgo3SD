@@ -87,56 +87,94 @@ if (l==NULL || *l==NULL)
 /*-----------------------------------------------------------------*/
 
 List* list_push_front(List* l, int v) {
-	(void)v;
+	LinkedElement* new_element = malloc(sizeof(LinkedElement)); //We allocate the new element
+	new_element->value = v; //We set the value of the new element to the value we want to add
+	new_element->previous=l->sentinel; //The new element is going to be the first element of the list, so its previous element is the sentinel
+	new_element->next=new_element->previous->next; //The new element points to the first element of the list (which is the sentinel for now)
+
+	new_element->next->previous=new_element; //The first element of the list points to the new element
+	new_element->previous->next=new_element; //The sentinel points to the new element
+	SIZE_of_s++; //We increment the size of the list
+
 	return l;
 }
 
 /*-----------------------------------------------------------------*/
 
 int list_front(const List* l) {
-	(void)l;
-	return 0;
+	return l->sentinel->next->value; //We return the value of the first element of the list
 }
 
 /*-----------------------------------------------------------------*/
 
 int list_back(const List* l) {
-	(void)l;
-	return 0;
+	return l->sentinel->previous->value; //We return the value of the last element of the list
 }
 
 /*-----------------------------------------------------------------*/
 
 List* list_pop_front(List* l) {
+	assert(!list_is_empty(l));
+	LinkedElement* e = l->sentinel->next;
+	 l->sentinel->next = e->next;
+	 l->sentinel->next->previous = l->
+	 	sentinel;
+	 --(SIZE_of_s);
+	 free(e);
 	return l;
 }
 
 /*-----------------------------------------------------------------*/
 
 List* list_pop_back(List* l){
+	assert(!list_is_empty(l));
+	LinkedElement* e = l->sentinel->previous;
+	 l->sentinel->previous = e->previous;
+	 l->sentinel->previous->next = l->
+	 	sentinel;
+	 --(SIZE_of_s);
+	 free(e);
 	return l;
 }
 
 /*-----------------------------------------------------------------*/
 
 List* list_insert_at(List* l, int p, int v) {
-	(void)v;
-	(void)p;
-	return l;
-}
+		assert((0<=p) && (p <= SIZE_of_s));
+		LinkedElement* insert = l->sentinel->next;
+		while (p--) insert = insert->next;
+		LinkedElement* e = malloc(sizeof(LinkedElement));
+		e->value = v; 
+		e->next = insert;
+		e->previous = insert->previous;
+		e->previous->next = e;
+		e->next->previous = e;
+		++(SIZE_of_s);
+		return l;
+		} 
 
 /*-----------------------------------------------------------------*/
 
 List* list_remove_at(List* l, int p) {
-	(void)p;
+	assert((0 <= p) && (p < SIZE_of_s));
+	LinkedElement* remove = l->sentinel->next;
+	while (p--) remove = remove->next;
+	remove->previous->next = remove->next;
+	remove->next->previous = remove->previous;
+	free(remove);
+	--(SIZE_of_s);
 	return l;
-}
+	}
+
+
 
 /*-----------------------------------------------------------------*/
 
 int list_at(const List* l, int p) {
-	(void)l;
-	return p;
+	assert(!list_is_empty(l) && (0 <= p) && p < SIZE_of_s);
+ LinkedElement* e = l->sentinel->next;
+ for (;p;--p, e = e->next);
+ return e->value;
 }
 
 /*-----------------------------------------------------------------*/
