@@ -20,6 +20,12 @@ typedef struct s_LinkedElement {
 	struct s_LinkedElement* next;
 } LinkedElement;
 
+typedef struct s_SubList {
+	int value;
+	struct s_LinkedElement* head;
+	struct s_LinkedElement* tail;
+} SubList;
+
 /* Use of a sentinel for implementing the list :
  The sentinel is a LinkedElement* whose next pointer refer always to the head of the list and previous pointer to the tail of the list
  */
@@ -205,3 +211,86 @@ List* list_sort(List* l, OrderFunctor f) {
 	return l;
 }
 
+
+/*-----------------------------------------------------------------*/
+
+SubList list_split(SubList l) {
+	SubList* new_sublist = malloc(sizeof(SubList));
+	new_sublist->head = l->head;
+	new_sublist->tail = l->tail;
+
+
+
+	// We browse the list until we reach the middle and we split it
+	while(new_sublist->head->next != new_sublist->tail && new_sublist->head != new_sublist->tail) {
+		new_sublist->head = new_sublist->head->next; // This line allows us to go to the next element
+		if(new_sublist->head->next != new_sublist->tail) {
+			new_sublist->tail = new_sublist->tail->previous; // This line allows us to go to the previous element
+		}
+	}
+
+	return new_sublist;
+
+}
+
+
+/*-----------------------------------------------------------------*/
+
+SubList list_merge(SubList leftlist, SubList rightlist, OrderFunctor f) {
+	SubList* new_sublist = malloc(sizeof(SubList));
+	new_sublist->head = NULL;
+	new_sublist->tail = NULL;
+
+
+	while(leftlist.head != NULL || rightlist.head != NULL ) {
+		if (leftlist.head == NULL) {
+			if(new_sublist->head == NULL) {
+				new_sublist->head = rightlist.head;
+				new_sublist->tail= rightlist.tail;
+			} else {
+				new_sublist->tail->next = rightlist.head;
+				rightlist.head->previous = new_sublist->tail;
+				new_sublist->tail = rightlist.tail;
+			}
+			break; // We break the loop since we have reached the end of the left list
+		} else if 	(rightlist.head == NULL){
+			if (new_sublist->head == NULL) {
+				new_sublist->head = leftlist.head;
+				new_sublist->tail= leftlist.tail;
+			} else {
+				new_sublist->tail->next = leftlist.head;
+				leftlist.head->previous = new_sublist->tail;
+				new_sublist->tail = leftlist.tail;
+			}
+			break; // We break the loop since we have reached the end of the right list
+		} else if (f(leftlist.head->value, rightlist.head->value)) {
+			if (new_sublist->head == NULL) {
+				new_sublist->head = leftlist.head;
+				new_sublist->tail = leftlist.tail;
+				leftlist.head = leftlist.head->next;
+				new_sublist->tail->next = NULL;
+			} else {
+				new_sublist->tail->next = leftlist.head;
+				leftlist.head->previous = new_sublist->tail;
+				new_sublist->tail = leftlist.head;
+				leftlist.head = leftlist.head->next;
+				new_sublist->tail->next = NULL;
+
+			}
+		} else {
+			if(new_sublist->head == NULL) {
+				new_sublist->head = rightlist.head;
+				new_sublist->tail = rightlist.head;
+				rightlist.head = rightlist.head->next;
+				new_sublist->tail->next = NULL;
+			} else {
+				new_sublist->tail->next = rightlist.head;
+				rightlist.head->previous = new_sublist->tail;
+				new_sublist->tail = rightlist.head;
+				rightlist.head = rightlist.head->next;
+				new_sublist->tail->next = NULL;
+			}
+		}
+	}
+	return new_sublist;
+}
