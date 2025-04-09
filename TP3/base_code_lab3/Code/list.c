@@ -216,20 +216,25 @@ List* list_sort(List* l, OrderFunctor f) {
 	new_sublist.head = l->sentinel->next;
 	new_sublist.tail = l->sentinel->previous;
 
-	SubList sorted_sublist = list_mergesort(new_sublist, f); // We use the function list_mergesort to sort the list
+	new_sublist.head->previous = NULL; 
+	new_sublist.tail->next = NULL;
 
-	l->sentinel->next = sorted_sublist.head; // We set the head of the list to the head of the sorted sublist
-	l->sentinel->previous = sorted_sublist.tail; // The same for the tail
-	sorted_sublist.head->previous = l->sentinel; // We set the previous pointer of the head of the sorted sublist to the sentinel
-	sorted_sublist.tail->next = l->sentinel; // We set the next pointer of the tail of the sorted sublist to the sentinel
+	new_sublist = list_mergesort(new_sublist, f); // We use the function list_mergesort to sort the list
 
-	int count = 0;
-    for (LinkedElement* e = sorted_sublist.head; e != l->sentinel; e = e->next) {
-		count++;
-    }
-    l->size = count;
+	List* listsorted = list_create(); 
+	new_sublist.head->previous = listsorted->sentinel; 
+	new_sublist.tail->next = listsorted->sentinel; 
 
-	return l;
+	listsorted->sentinel->next = new_sublist.head;
+	listsorted->sentinel->previous = new_sublist.tail;
+	listsorted->size = l->size;
+
+	free(l->sentinel);
+	free(l); 
+
+
+
+	return listsorted;
 }
 
 
