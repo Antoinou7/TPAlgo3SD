@@ -147,3 +147,27 @@ LinkedElement* current = d->sentinelle;
 	d->size++;
 	return d;
 }
+
+
+bool skiplist_search(const SkipList* d, int value, unsigned int* nb_operations) {
+
+	assert (d != NULL);
+	assert (nb_operations != NULL);
+
+	*nb_operations = 0;
+	LinkedElement* current = d->sentinelle;
+
+	for(int i = d->nblevels - 1; i >= 0; i--) {
+		while(current->next[i] != NULL && current->next[i]->value < value) {
+			current = current->next[i];
+			(*nb_operations)++;
+		}
+	}
+
+	if(current->next[0] != NULL && current->next[0]->value == value) {
+		(*nb_operations)++;
+		return true;
+	}
+
+	return false;
+}
