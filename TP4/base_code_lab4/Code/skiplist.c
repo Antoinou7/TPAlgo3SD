@@ -104,6 +104,18 @@ SkipList* skiplist_insert(SkipList* d, int value) {
 	}
 
 
+LinkedElement* current = d->sentinelle;
+	for(int i = d->nblevels - 1; i >= 0; i--) {
+		while(current->next[i] != NULL && current->next[i]->value < value) {
+			current = current->next[i];
+		}
+	
+
+	if(current->next[i] != NULL && current->next[i]->value == value) {
+		return d; 
+	}
+}
+
 	LinkedElement* new_E = (LinkedElement*)malloc(sizeof(LinkedElement));
 	new_E->value = value;
 	new_E->next = (LinkedElement**)malloc(level * sizeof(LinkedElement*));
@@ -113,7 +125,7 @@ SkipList* skiplist_insert(SkipList* d, int value) {
 		new_E->previous[i] = NULL;
 	}
 
-	LinkedElement* current = d->sentinelle;
+	current = d->sentinelle;
 
 	for(int i = level - 1;i>=0;i--){
 		while(current->next[i] != NULL && current->next[i]->value < value ){

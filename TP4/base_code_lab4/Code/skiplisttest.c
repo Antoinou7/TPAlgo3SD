@@ -114,12 +114,12 @@ SkipList* buildlist(int num) {
 
 
 void test_construction(int num){
-	SkipList* new_skip = buildlist(num);
-
-	printf("Skiplist (%d)\n", skiplist_size(new_skip));
-	void *a = NULL;
-	skiplist_map(new_skip,skipprint,a);
-	skiplist_delete(&new_skip);
+	SkipList* d = buildlist(num);
+    printf("Skiplist (%d)\n", skiplist_size(d));
+    void *e = NULL;
+    skiplist_map(d,skipprint,e);
+	printf("\n");
+	skiplist_delete(&d);
 }
 
 /** Exercice 2.
