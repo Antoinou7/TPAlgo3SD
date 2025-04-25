@@ -128,7 +128,8 @@ void test_construction(int num){
 void test_search(int num){
 	SkipList* d = buildlist(num);
 	char *searchfile = gettestfilename("search", num);
-	FILE *input = fopen(searchfile, "r");
+	FILE *input;
+	input = fopen(searchfile, "r");
 	
 	if (input == NULL)
 	{
@@ -139,47 +140,55 @@ void test_search(int num){
 
 	unsigned int nbVal;
 	fscanf(input, "%u", &nbVal);
-
-	unsigned int found = 0;
-	unsigned int not_found = 0;
-	unsigned int total_operations = 0;
+	
+	int min = (int)nbVal;
+	int max, mean = 0;
+	int found = 0;
+	int not_found = 0;
 	unsigned int nb_operations = 0;
-	unsigned int min = (unsigned int)-1;
-	unsigned int max = 0;
+	int value;
+	
 
-	for(unsigned int i=0; i<nbVal; ++i) {
-		int value;
+	for(int i=0; i<(int)nbVal; ++i) {
 		fscanf(input, "%d", &value);
-
 		bool boolfound = skiplist_search(d, value, &nb_operations);
-		printf("%d -> %s\n", value, boolfound ? "true" : "false");
+		
+		
 		if(boolfound) {
+			printf("%d -> true\n", value);
 			++found;
 		} else {
+			printf("%d -> false\n", value);
 			++not_found;
 		}
 
-		total_operations += nb_operations;
-		
-		if(nb_operations < min) {
+		mean += nb_operations;
+
+		if(i==0) {
 			min = nb_operations;
-		}
-		if(nb_operations > max) {
 			max = nb_operations;
 		}
 		
+		if((int)nb_operations < min) {
+			min = (int)nb_operations;
+		}
+
+		if((int)nb_operations > max) {
+			max = (int)nb_operations;
+		}
+
 	}
 
-	unsigned int average = total_operations / nbVal;
+	unsigned int average = mean/nbVal;
 
-	printf("Statistics :\n");
+	printf("Statistics : \n");
 	printf("\tSize of the list : %u\n", skiplist_size(d));
-	printf("Search %u values :\n", nbVal);
+	printf("Search %d values :\n", nbVal);
 	printf("\tFound %u\n", found);
 	printf("\tNot found %u\n", not_found);
 	printf("\tMin number of operations : %u\n", min);
 	printf("\tMax number of operations : %u\n", max);
-	printf("\tMean number of operations : %u\n", average);
+	printf("\tMean number of operations : %d\n", average);
 
 	free(searchfile);
 	fclose(input);

@@ -150,24 +150,27 @@ LinkedElement* current = d->sentinelle;
 
 
 bool skiplist_search(const SkipList* d, int value, unsigned int* nb_operations) {
-
 	assert (d != NULL);
-	assert (nb_operations != NULL);
 
+	bool found = false;
 	*nb_operations = 0;
 	LinkedElement* current = d->sentinelle;
 
-	for(int i = d->nblevels - 1; i >= 0; i--) {
-		while(current->next[i] != NULL && current->next[i]->value < value) {
+	for(int i = d->nblevels - 1; i >= 0 && !found; i--) {
+		if (current->next[i] != NULL && current->next[i]->value == value) {
+			found = true;
+		}
+
+		while (current->next[i] != NULL && current->next[i]->value < value) {
 			current = current->next[i];
 			(*nb_operations)++;
 		}
 	}
-
-	if(current->next[0] != NULL && current->next[0]->value == value) {
-		(*nb_operations)++;
-		return true;
+	current = current->next[0];
+	(*nb_operations)++;
+	if (current != NULL && current->value == value) {
+		found = true;
+		return found;
 	}
-
-	return false;
+	return found;
 }
