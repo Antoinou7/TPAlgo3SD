@@ -174,3 +174,108 @@ bool skiplist_search(const SkipList* d, int value, unsigned int* nb_operations) 
 	}
 	return found;
 }
+
+
+struct s_SkipListIterator{
+	SkipList * list;
+	LinkedElement* current;
+	int forwardorbackward;
+};
+
+SkipListIterator* skiplist_iterator_create(SkipList* d, IteratorDirection w){
+	SkipListIterator * l =malloc(sizeof(SkipListIterator));
+	l->list = d;
+	if(w == FORWARD_ITERATOR){
+		l->current = d->sentinelle->next[0];
+		l->forwardorbackward = 1;
+	}else{
+		l->current = d->sentinelle;
+		l->forwardorbackward = -1;
+	}
+	return l;
+}
+
+
+void skiplist_iterator_delete(SkipListIterator** l){
+	free(*l);
+	*l = NULL;
+}
+
+
+SkipListIterator* skiplist_iterator_begin(SkipListIterator* l){
+	assert( l != NULL);
+	if(l->forwardorbackward == 1){
+		l->current = l->list->sentinelle->next[0];
+	}else{
+		l->current = l->list->sentinelle->previous[0];
+	}
+	return l;
+}
+
+bool skiplist_iterator_end(SkipListIterator* l){
+	assert (l != NULL);
+	if(l->forwardorbackward == 1){
+		return l->current == NULL;
+	}else{
+		return l->current == l->list-> sentinelle;
+	}
+}
+
+SkipListIterator* skiplist_iterator_next(SkipListIterator* l){
+	assert (l != NULL);
+	if(l->forwardorbackward == 1){
+		l->current = l->current-> next[0];
+	}else{
+		l->current = l->current->previous[0];
+	}
+	return l;
+}
+
+
+int skiplist_iterator_value(SkipListIterator* l){
+	assert(l != NULL);
+	return l->current->value;
+}
+
+
+SkipList* skiplist_remove(SkipList* d, int value) {
+	LinkedElement* current = d->sentinelle;
+	LinkedElement* update[d->nblevels];
+	int top = d->nblevels - 1;
+
+	if (current->next[0] == NULL) {
+		d->sentinelle->previous[0] = current->previous[0];
+	}
+
+	for(int i = top;i>=0;i--){
+		while(current->next[i] != NULL && current->next[i]->value < value){
+			current = current->next[i];
+		}
+		update[i] = current;
+	}
+
+	current = current->next[0];
+	if(current == NULL || current->value != value){
+		return d;
+	}
+
+
+	if(current != NULL && current->value == value){
+	for(int i = 0;i< d->nblevels;i++){
+		if(update[i]->next[i]==current){
+			update[i]->next[i]=current->next[i];
+			if(current->next[i] != NULL){
+				current->next[i]->previous[i]=update[i];
+			}
+		}
+	}
+}
+	free(current->next);
+	free(current->previous);
+	free(current);
+
+	d->size--;
+	return d;
+}
+
+
