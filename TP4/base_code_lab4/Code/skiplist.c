@@ -87,10 +87,26 @@ int skiplist_at(const SkipList* d, unsigned int i) {
 void skiplist_map(const SkipList* d, ScanOperator f, void *user_data) {
 	assert (d != NULL);
 	assert (f != NULL);
-	LinkedElement* current = d->sentinelle->next[0];
-	while (current != NULL) {
-		f(current->value, user_data);
-		current = current->next[0];
+	LinkedElement* current; 
+
+	char ud = *(char*) user_data;
+	
+	if(ud == 'c') {
+		current = d->sentinelle->next[0];
+		while (current != NULL) {
+			f(current->value, user_data);
+			current = current->next[0];
+		}
+	}
+	if (ud == 'd') {
+		current = d->sentinelle;
+        while (current->next[0]) {
+            current = current->next[0];
+        }
+        while (current->previous[0]) {
+            f(current->value, user_data);
+            current = current->previous[0];
+        }
 	}
 }
 
@@ -223,6 +239,10 @@ bool skiplist_iterator_end(SkipListIterator* l){
 
 SkipListIterator* skiplist_iterator_next(SkipListIterator* l){
 	assert (l != NULL);
+	if(l->current == NULL){
+		return l;
+	}
+
 	if(l->forwardorbackward == 1){
 		l->current = l->current-> next[0];
 	}else{
@@ -234,6 +254,10 @@ SkipListIterator* skiplist_iterator_next(SkipListIterator* l){
 
 int skiplist_iterator_value(SkipListIterator* l){
 	assert(l != NULL);
+	if(l->current == NULL){
+		perror("Error: iterator is at an invalid position\n");
+		exit(2);
+	}
 	return l->current->value;
 }
 

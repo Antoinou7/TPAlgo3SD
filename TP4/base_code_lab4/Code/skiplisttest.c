@@ -116,7 +116,7 @@ SkipList* buildlist(int num) {
 void test_construction(int num){
 	SkipList* d = buildlist(num);
     printf("Skiplist (%d)\n", skiplist_size(d));
-    void *e = NULL;
+    char *e = "c";
     skiplist_map(d,skipprint,e);
 	printf("\n");
 	skiplist_delete(&d);
@@ -300,7 +300,7 @@ void test_remove(int num){
 	}
 
 	printf("Skiplist (%d)\n", skiplist_size(d));
-	void *userData = NULL;
+	char *userData ="d";
 	skiplist_map(d, skipprint,userData);
 	printf("\n");
 	skiplist_delete(&d);
