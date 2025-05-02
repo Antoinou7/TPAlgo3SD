@@ -268,6 +268,7 @@ void test_search_iterator(int num){
 	free(searchfile);
 	fclose(input);
 	skiplist_delete(&d);
+	
 
 
 }

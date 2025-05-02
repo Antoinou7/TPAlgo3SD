@@ -50,6 +50,8 @@ void skiplist_delete(SkipList** d) {
 	LinkedElement* current = (*d)->sentinelle->next[0];
 	while(current != NULL) {
 		LinkedElement* next = current->next[0];
+		free(current->next);
+		free(current->previous);
 		free(current);
 		current = next;
 	}
