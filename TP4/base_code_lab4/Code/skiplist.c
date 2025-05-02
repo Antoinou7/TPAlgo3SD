@@ -110,57 +110,53 @@ void skiplist_map(const SkipList* d, ScanOperator f, void *user_data) {
 	}
 }
 
+LinkedElement* create_elem(int nblevels, int value) {
+	assert(nblevels > 0);
+	
+	LinkedElement* elem = (LinkedElement*)malloc(sizeof(LinkedElement));
+	elem->value = value;
+	elem->next = (LinkedElement**)malloc(nblevels * sizeof(LinkedElement*));
+	elem->previous = (LinkedElement**)malloc(nblevels * sizeof(LinkedElement*));
+	
+	for (int i = 0; i < nblevels; i++) {
+		elem->next[i] = NULL;
+		elem->previous[i] = NULL;
+	}
+
+	return elem;
+}
+
 
 SkipList* skiplist_insert(SkipList* d, int value) {
-	assert (d != NULL);
-
-	int level = rng_get_value(&(d->rng)) + 1;
-	if(level > d->nblevels) {
-		level = d->nblevels;
-	}
-
-
-LinkedElement* current = d->sentinelle;
-	for(int i = d->nblevels - 1; i >= 0; i--) {
-		while(current->next[i] != NULL && current->next[i]->value < value) {
+	assert(d != NULL);
+	LinkedElement* current = d->sentinelle;
+	LinkedElement* update[d->nblevels];
+	
+	for (int i = d->nblevels - 1; i >= 0; i--) {
+		while (current->next[i] != NULL && current->next[i]->value < value) {
 			current = current->next[i];
 		}
-	
-
-	if(current->next[i] != NULL && current->next[i]->value == value) {
-		return d; 
-	}
-}
-
-	LinkedElement* new_E = (LinkedElement*)malloc(sizeof(LinkedElement));
-	new_E->value = value;
-	new_E->next = (LinkedElement**)malloc(level * sizeof(LinkedElement*));
-	new_E->previous = (LinkedElement**)malloc(level * sizeof(LinkedElement*));
-	for (int i = 0; i < level; i++) {
-		new_E->next[i] = NULL;
-		new_E->previous[i] = NULL;
+		update[i] = current;
 	}
 
-	current = d->sentinelle;
-
-	for(int i = level - 1;i>=0;i--){
-		while(current->next[i] != NULL && current->next[i]->value < value ){
-			current = current->next[i];
+	current = current->next[0];
+	if (current == NULL || current->value != value) {
+		int level = rng_get_value(&(d->rng));
+		if (level > d->nblevels - 1) {
+			level = d->nblevels - 1;
 		}
-	
-
-	if(i<level){
-		new_E->next[i]=current->next[i];
-		new_E->previous[i]=current;
-
-
-		if(current->next[i] != NULL){
-			current->next[i]->previous[i]=new_E;
+		LinkedElement* new_elem = create_elem(d->nblevels, value);
+		for (int i = 0; i <= level; i++) {
+			new_elem->next[i] = update[i]->next[i];
+			new_elem->previous[i] = update[i];
+			update[i]->next[i] = new_elem;
+			if (new_elem->next[i] != NULL) {
+				new_elem->next[i]->previous[i] = new_elem;
+			}
 		}
-		current->next[i]=new_E;
+		d->size++;
 	}
-}
-	d->size++;
+	
 	return d;
 }
 
