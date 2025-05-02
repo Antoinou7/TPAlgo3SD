@@ -110,22 +110,6 @@ void skiplist_map(const SkipList* d, ScanOperator f, void *user_data) {
 	}
 }
 
-LinkedElement* create_elem(int nblevels, int value) {
-	assert(nblevels > 0);
-	
-	LinkedElement* elem = (LinkedElement*)malloc(sizeof(LinkedElement));
-	elem->value = value;
-	elem->next = (LinkedElement**)malloc(nblevels * sizeof(LinkedElement*));
-	elem->previous = (LinkedElement**)malloc(nblevels * sizeof(LinkedElement*));
-	
-	for (int i = 0; i < nblevels; i++) {
-		elem->next[i] = NULL;
-		elem->previous[i] = NULL;
-	}
-
-	return elem;
-}
-
 
 SkipList* skiplist_insert(SkipList* d, int value) {
 	assert(d != NULL);
@@ -145,7 +129,19 @@ SkipList* skiplist_insert(SkipList* d, int value) {
 		if (level > d->nblevels - 1) {
 			level = d->nblevels - 1;
 		}
-		LinkedElement* new_elem = create_elem(d->nblevels, value);
+		
+		LinkedElement* new_elem = (LinkedElement*)malloc(sizeof(LinkedElement));
+		new_elem->value = value;
+		new_elem->next = (LinkedElement**)malloc(d->nblevels * sizeof(LinkedElement*));
+		new_elem->previous = (LinkedElement**)malloc(d->nblevels * sizeof(LinkedElement*));
+		
+		for (int i = 0; i < level; i++) {
+			new_elem->next[i] = NULL;
+			new_elem->previous[i] = NULL;
+		}
+
+
+
 		for (int i = 0; i <= level; i++) {
 			new_elem->next[i] = update[i]->next[i];
 			new_elem->previous[i] = update[i];
@@ -156,7 +152,7 @@ SkipList* skiplist_insert(SkipList* d, int value) {
 		}
 		d->size++;
 	}
-	
+
 	return d;
 }
 
