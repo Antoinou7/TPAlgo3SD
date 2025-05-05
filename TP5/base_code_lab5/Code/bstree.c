@@ -164,17 +164,86 @@ const BinarySearchTree* bstree_predecessor(const BinarySearchTree* x) {
 
 void bstree_swap_nodes(ptrBinarySearchTree* tree, ptrBinarySearchTree from, ptrBinarySearchTree to) {
     assert(!bstree_empty(*tree) && !bstree_empty(from) && !bstree_empty(to));
-    (void)tree; (void)from; (void)to;
+    if(bstree_parent(from)) {
+        if(from->parent->left == from) from->parent->left = to;
+        else from->parent->right = to;
+    } 
+    else *tree = to;
+    
+    if (bstree_parent(to)) {
+        if(to->parent->left == to){
+             to->parent->left = from;
+        }
+        else{
+            to->parent->right = from;
+        }
+    }
+
+    BinarySearchTree *new_parent = from->parent;
+    from->parent = to->parent;
+    to->parent = new_parent;
+    if(from->left){
+        from->left->parent = to;
+    } 
+    if(to->left) {
+        to->left->parent = from;
+    }
+    new_parent = from->left;
+    from->left = to->left;
+    to->left = new_parent;
+    if(from->right) {
+        from->right->parent = to;
+    }
+    if(to->right){
+        to->right->parent = from;
+    }
+    new_parent = from->right;
+    from->right = to->right;
+    to->right = new_parent;
 }
 
 // t -> the tree to remove from, current -> the node to remove
 void bstree_remove_node(ptrBinarySearchTree* t, ptrBinarySearchTree current) {
     assert(!bstree_empty(*t) && !bstree_empty(current));
-    (void)t; (void)current;
+
+    ptrBinarySearchTree temp;
+    if(current->left == current->right) {
+        temp = NULL;
+    } else if (!current->left) {
+        temp = current->right;
+    } else if (!current->right) {
+        temp = current->left;
+    } else {
+        ptrBinarySearchTree leaf = (BinarySearchTree*)bstree_successor(current);
+        bstree_swap_nodes(t, current, leaf);
+        temp = current->right;
+    }
+    if (temp) {
+        temp->parent = current->parent;
+    }
+    if (!current->parent) {
+        *t = temp;
+    } else if (current->parent->left == current) {
+        current->parent->left = temp;
+    } else {
+        current->parent->right = temp;
+    }
+    free(current);
+
 }
 
 void bstree_remove(ptrBinarySearchTree* t, int v) {
-    (void)t; (void)v;
+    BinarySearchTree *current = *t;
+    while (current) {
+        if (v < bstree_key(current)) {
+            current = current->left;
+        } else if (v > bstree_key(current)) {
+            current = current->right;
+        } else {
+            bstree_remove_node(t, current);
+            return;
+        }
+    }
 }
 
 /*------------------------  BSTreeVisitors  -----------------------------*/
@@ -236,8 +305,8 @@ void bstree_iterative_breadth(const BinarySearchTree* t, OperateFunctor f, void*
 
 void bstree_iterative_depth_infix(const BinarySearchTree* t, OperateFunctor f, void* environment) {
     BinarySearchTree *current = (BinarySearchTree*)t;
-    BinarySearchTree *next = bstree_parent( t );
-    BinarySearchTree *prev = bstree_parent( t );
+    BinarySearchTree *next = bstree_parent(t);
+    BinarySearchTree *prev = bstree_parent(t);
     while (!bstree_empty(current)) {
         if (prev == bstree_parent(current) ) {
             prev = current; next = bstree_left(current);
