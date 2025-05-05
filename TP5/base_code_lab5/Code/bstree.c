@@ -15,6 +15,14 @@ struct _bstree {
     int key;
 };
 
+typedef BinarySearchTree* (*AccessFunction)(const BinarySearchTree*);
+
+typedef struct {
+    AccessFunction first;
+    AccessFunction second;
+} ChildAccessors;
+
+
 /*------------------------  BaseBSTree  -----------------------------*/
 
 BinarySearchTree* bstree_create(void) {
@@ -123,40 +131,35 @@ const BinarySearchTree* bstree_search(const BinarySearchTree* t, int v) {
     return bstree_create(); 
 }
 
-const BinarySearchTree* bstree_successor(const BinarySearchTree* x) {
-    assert(!bstree_empty(x));
-    BinarySearchTree* succ = NULL;
-    if(bstree_right(x)){
-        succ = bstree_right(x);
-        while(succ->left){
-            succ = succ->left;
+BinarySearchTree* find_next(const BinarySearchTree* x, ChildAccessors access){
+    assert (!bstree_empty(x));
+    BinarySearchTree* next = access.second((BinarySearchTree*)x);
+    if (next){
+        while(access.first(next)){
+            next = access.first(next);
         }
     } else {
-        succ = bstree_parent(x);
-        while(succ && x == bstree_right(succ)){
-            x = succ;
-            succ = bstree_parent(succ);
+        next = bstree_parent(x);
+        while(next && x == access.second(next)){
+            x = next;
+            next = bstree_parent(next);
         }
     }
-    return succ;
+
+    return next;
+
+}
+
+
+
+const BinarySearchTree* bstree_successor(const BinarySearchTree* x) {
+    ChildAccessors access = {bstree_left , bstree_right};
+    return find_next(x,access);
 }
 
 const BinarySearchTree* bstree_predecessor(const BinarySearchTree* x) {
-    assert(!bstree_empty(x));
-    BinarySearchTree* pred = NULL;
-    if(bstree_left(x)){
-        pred = bstree_left(x);
-        while(bstree_right(pred)){
-            pred = pred->right;
-        }
-    } else {
-        pred = bstree_parent(x);
-        while(pred && (x == bstree_left(pred))){
-            x = pred;
-            pred = bstree_parent(pred);
-        }
-    }
-    return pred;
+    ChildAccessors access = {bstree_right , bstree_left};
+    return find_next(x,access);
 }
 
 void bstree_swap_nodes(ptrBinarySearchTree* tree, ptrBinarySearchTree from, ptrBinarySearchTree to) {
