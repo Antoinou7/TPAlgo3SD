@@ -338,21 +338,35 @@ struct _BSTreeIterator {
 
 /* minimum element of the collection */
 const BinarySearchTree* goto_min(const BinarySearchTree* e) {
-	(void)e;
-	return NULL;
+    while(e && bstree_left(e)){
+        e = bstree_left(e);
+    }
+	return e;
 }
 
 /* maximum element of the collection */
 const BinarySearchTree* goto_max(const BinarySearchTree* e) {
-	(void)e;
-	return NULL;
+    while(e && bstree_right(e)){
+        e = bstree_right(e);
+    }
+	return e;
 }
 
 /* constructor */
 BSTreeIterator* bstree_iterator_create(const BinarySearchTree* collection, IteratorDirection direction) {
-	(void)collection; (void)direction;
-	return NULL;
-}
+    BSTreeIterator* new_iterator = malloc(sizeof(BSTreeIterator));
+    new_iterator->collection = collection;
+    if (direction == forward){
+        new_iterator->begin = goto_min;
+        new_iterator->next = bstree_successor;
+    } else {
+        new_iterator->begin = goto_max;
+        new_iterator->next = bstree_predecessor;
+    }
+
+    return new_iterator;
+    }
+
 
 /* destructor */
 void bstree_iterator_delete(ptrBSTreeIterator* i) {
