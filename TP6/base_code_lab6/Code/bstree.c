@@ -97,36 +97,26 @@ BinarySearchTree* bstree_parent(const BinarySearchTree* t) {
 
 /* Obligation de passer l'arbre par référence pour pouvoir le modifier */
 void bstree_add(ptrBinarySearchTree* t, int v) {
-    if(*t == NULL){
-        *t = bstree_cons(NULL, NULL, v);
-    } else {
-        BinarySearchTree* cur = *t;
-        BinarySearchTree* par = NULL;
-        while(cur != NULL){
-            par = cur;
-
-            if (v<cur->key){
-                cur = cur->left;
-            }
-
-            else if(v>cur->key){
-                cur = cur->right;
-            }
-            else{
-                return; // value already in the tree
-            }
+    ptrBinarySearchTree* cur = t;
+    BinarySearchTree* par = NULL;
+    while(*cur){
+        if(bstree_key(*cur)==v){
+            return;
         }
-
-        if (v<par->key){
-            par->left = bstree_cons(NULL, NULL,v);
-            par->left->parent = par;
+        par = *cur;
+        if (bstree_key(*cur) > v){
+            cur = &((*cur)->left);
         }
-
-        else if (v>par->key){
-            par->right = bstree_cons(NULL, NULL,v);
-            par->right->parent = par;
-        }   
-        
+        else{
+            cur = &((*cur)->right);
+        }
+    }
+    *cur = bstree_cons(NULL,NULL,v);
+    (*cur)->parent = par;
+    
+    BinarySearchTree* stop = fixredblack_insert(*cur);
+    if(stop->parent == NULL){
+        *t = stop;
     }
 }
 
@@ -411,9 +401,11 @@ const BinarySearchTree* bstree_iterator_value(const BSTreeIterator* i) {
 void bstree_node_to_dot(const BinarySearchTree *t, void *stream) {
     FILE *file = (FILE *) stream;
 
+    const char *fillcolor = (t->color == red) ? "red" : "grey";
     printf("%d ", bstree_key(t));
-    fprintf(file, "\tn%d [style=filled, fillcolor=red, label=\"{%d|{<left>|<right>}}\"];\n",
-            bstree_key(t), bstree_key(t));
+
+    fprintf(file, "\tn%d [style=filled, fillcolor=%s, label=\"{%d|{<left>|<right>}}\"];\n",
+            t->key, fillcolor, t->key);
 
     if (bstree_left(t)) {
         fprintf(file, "\tn%d:left:c -> n%d:n [headclip=false, tailclip=false]\n",
@@ -431,6 +423,7 @@ void bstree_node_to_dot(const BinarySearchTree *t, void *stream) {
         fprintf(file, "\tn%d:right:c -> rnil%d:n [headclip=false, tailclip=false]\n",
                 bstree_key(t), bstree_key(t));
     }
+
 }
 
 void leftrotate(BinarySearchTree *x) {
@@ -520,6 +513,11 @@ BinarySearchTree *fixredblack_insert(BinarySearchTree *x){
 BinarySearchTree* fixredblack_insert_case1(BinarySearchTree* x) {
     BinarySearchTree* unc = uncle(x);
     BinarySearchTree* gp = grandparent(x);
+
+    if (x->parent == NULL){
+        x->parent->color = black;
+        return x;
+    }
 
     if (unc != NULL && unc->color == red) { // Thanks to fixredblack_insert, we know that x->parent->color == red, so now to get to case 1, we just have to check if the uncle is red}
         x->parent->color = black;
