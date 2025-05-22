@@ -1,0 +1,15 @@
+digraph RedBlackTree {
+	graph [ranksep=0.5];
+	node [shape = record];
+
+	n4 [style=filled, fillcolor=red, label="{4|{<left>|<right>}}"];
+	lnil4 [style=filled, fillcolor=grey, label="NIL"];
+	n4:left:c -> lnil4:n [headclip=false, tailclip=false]
+	rnil4 [style=filled, fillcolor=grey, label="NIL"];
+	n4:right:c -> rnil4:n [headclip=false, tailclip=false]
+	n6 [style=filled, fillcolor=grey, label="{6|{<left>|<right>}}"];
+	n6:left:c -> n4:n [headclip=false, tailclip=false]
+	rnil6 [style=filled, fillcolor=grey, label="NIL"];
+	n6:right:c -> rnil6:n [headclip=false, tailclip=false]
+
+}
