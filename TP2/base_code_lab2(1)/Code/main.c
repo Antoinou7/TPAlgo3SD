@@ -225,6 +225,7 @@ void computeExpressions(FILE* input) {
 		if(getline(&buffer, &size, input) > 1 ) // getLine return the number of characters read, we do not want to read empty lines, so we check if the number of characters read is greater than 1
 		{
 			printf("\nInput : %s", buffer);
+			if (buffer[strlen(buffer)-1] != '\n') putchar('\n'); 	// if the last character is not a \n, we add one
 			
 			Queue* tokenQueue = stringToTokenQueue(buffer);
 			printf("Infix : ");
@@ -262,7 +263,7 @@ void computeExpressions(FILE* input) {
 	}
 	}
 
-	free(buffer); //free the memory allocaded by the function "getline"
+	free(buffer); //free the memory allocated by the function "getline"
 	
 
 }
