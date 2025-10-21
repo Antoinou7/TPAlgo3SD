@@ -98,7 +98,12 @@ while(!queue_empty(infix))
 			queue_push(postfix, stack_top(operator));
 			stack_pop(operator);
 		}
-		stack_pop(operator);
+		if (!stack_empty(operator)){ 
+                 Token* tok = (Token*)stack_top(operator);
+                 stack_pop(operator);
+                 delete_token(&tok);
+             }
+			 delete_token(&token);
 	}
 	queue_pop(infix);
 }
