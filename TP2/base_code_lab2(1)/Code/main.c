@@ -30,10 +30,14 @@ const char* curpos = expression;
 
 
 while(*curpos != '\0'){
-	while(*curpos == ' ' || *curpos == '\n') 
+	
+	if(*curpos == ' ' || *curpos == '\n') 
 	{
 		curpos++;
 	}
+	
+	if (*curpos == '\0') break;
+
 	int nbValNum =0;
 	if(isSymbol(*curpos))
 	{
@@ -98,7 +102,7 @@ while(!queue_empty(infix))
 			queue_push(postfix, stack_top(operator));
 			stack_pop(operator);
 		}
-		if (!stack_empty(operator)){ 
+		if (!stack_empty(operator)){  
                  Token* tok = (Token*)stack_top(operator);
                  stack_pop(operator);
                  delete_token(&tok);
